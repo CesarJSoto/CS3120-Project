@@ -50,11 +50,6 @@ rows: list[PokemonStats] = []
 for name, stats in raw.items():
     rows.append (PokemonStats(
         name = name,
-        #players_using=stats["Viability Ceiling"][0],
-        #gxe_100th=stats["Viability Ceiling"][1],
-        #gxe_99th=stats["Viability Ceiling"][2],
-        #gxe_95th=stats["Viability Ceiling"][3],
-        #usage=stats["usage"],
         items=normalize(stats["Items"]),
         moves=normalize(stats["Moves"]),
         tera=max_key(stats["Tera Types"]),
@@ -73,7 +68,7 @@ y = data["tera_encoded"]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
-classifer = RandomForestClassifier(n_estimators=NUM_ESTIMATORS,random_state=1)
+classifer = RandomForestClassifier(n_estimators=NUM_ESTIMATORS,max_depth=6 ,random_state=1)
 classifer.fit(X_train, y_train)
 y_pred = classifer.predict(X_test)
 
@@ -91,3 +86,5 @@ with open(dot_file) as f:
 graph = graphviz.Source(dot_graph)
 graph.render("randm_forest_tree")
 graph
+
+pickle.dump(classifer, open('my_model.pkl', 'wb'))
