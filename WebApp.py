@@ -21,14 +21,14 @@ app = Flask(__name__)
 # ‘/’ URL is bound with hello_world() function.
 @app.route('/', methods=["GET","POST"])
 def web_app():
-    
-    selected_pokemon = request.form.get("pokemon-choice")
-    print(selected_pokemon)
+    if request.method == "POST":
+        selected_pokemon = request.form.get("pokemon-choice")
 
+        model.predict(selected_pokemon)
+
+        return "You have selected: " + selected_pokemon + "\nwe recomend a tera type of:"
+        + ""
     #tera_type = model.predict()
-
-    
-
     return render_template("pokemon.html", pokemon_names=pokemon_names)
         
 

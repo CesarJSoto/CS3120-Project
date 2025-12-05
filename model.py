@@ -65,7 +65,6 @@ le = LabelEncoder()
 data["name"] = le.fit_transform(data["name"])
 data["tera_encoded"] = le.fit_transform(data["tera"])
 
-
 #Uses the data to train the model
 X = data.drop(["name","tera","tera_encoded"],axis=1)
 y = data["tera_encoded"]
