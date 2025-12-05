@@ -63,10 +63,12 @@ pickle.dump(data["name"].to_list(),open("names_list.pkl","wb"))
 
 le = LabelEncoder()
 data["name"] = le.fit_transform(data["name"])
+pickle.dump(le, open('n_encoder.pkl', 'wb'))
 data["tera_encoded"] = le.fit_transform(data["tera"])
+pickle.dump(le, open('t_encoder.pkl', 'wb'))
 
 #Uses the data to train the model
-X = data.drop(["name","tera","tera_encoded"],axis=1)
+X = data.drop(["tera","tera_encoded"],axis=1)
 y = data["tera_encoded"]
 
 #Stores data for use in WebApp.py
@@ -77,6 +79,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 classifer = RandomForestClassifier(n_estimators=NUM_ESTIMATORS,max_depth=6 ,random_state=1)
 classifer.fit(X_train, y_train)
 y_pred = classifer.predict(X_test)
+
+print(classifer.score(X_train,y_train))
 
 #Saves the tree of the model
 tree = classifer.estimators_[NUM_ESTIMATORS - 1]
@@ -91,6 +95,5 @@ graph = graphviz.Source(dot_graph)
 graph.render("randm_forest_tree")
 
 
-#Stores model and Tera encoder for WebApp.py
-pickle.dump(le, open('encoder.pkl', 'wb'))
+#Stores model WebApp.py
 pickle.dump(classifer, open('my_model.pkl', 'wb'))

@@ -4,12 +4,15 @@ from flask import Flask, render_template, request, jsonify
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 import pickle
-
 #Retrives model from pickle
 model = pickle.load(open('my_model.pkl', 'rb'))
-encoder = pickle.load(open('encoder.pkl', 'rb'))
+name_encoder = pickle.load(open('n_encoder.pkl', 'rb'))
+tera_encoder = pickle.load(open('t_encoder.pkl', 'rb'))
 data = pickle.load(open('data.pkl', 'rb'))
 pokemon_names = pickle.load(open('names_list.pkl', 'rb'))
+
+test = "Hehe"
+ 
 
 # Flask constructor takes the name of 
 # current module (__name__) as argument.
@@ -23,15 +26,13 @@ app = Flask(__name__)
 def web_app():
     if request.method == "POST":
         selected_pokemon = request.form.get("pokemon-choice")
-
-        model.predict(selected_pokemon)
-
-        return "You have selected: " + selected_pokemon + "\nwe recomend a tera type of:"
-        + ""
-    #tera_type = model.predict()
+        encoded=name_encoder.transform([selected_pokemon])[0]
+        features = data[data["name"] == encoded]
+        tera_type = model.predict(features)
+        tera_type=tera_encoder.inverse_transform(tera_type)
+        return "You have selected: " + selected_pokemon + "\nwe recomend a tera type of: " + str(tera_type)
     return render_template("pokemon.html", pokemon_names=pokemon_names)
         
-
 
 # main driver function
 if __name__ == '__main__':
