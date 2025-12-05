@@ -15,12 +15,12 @@ from sklearn.metrics import accuracy_score
 from sklearn.tree import export_graphviz
 import graphviz
 
-
+#File names and Constants for easy alterations
 file_name = 'gen9vgc2025regj-1760.json'
 dot_file = 'tree.dot'
 NUM_ESTIMATORS = 80
 
-
+#Class to
 class PokemonStats(t.TypedDict):
     players_using: float
     gxe_100th: float
@@ -33,7 +33,7 @@ class PokemonStats(t.TypedDict):
     team: dict[str, float]
     counter: dict[str, float]
 
-
+#create functions to prepare the data
 def normalize(d: dict[str, float]) -> dict[str, float]:
     total = sum(d.values())
     return {k: v/total for k, v in d.items()}
@@ -42,7 +42,7 @@ def max_key(d: dict[str, float]) -> dict[str]:
         return max(d.keys(), key=lambda k: d[k])
 
 
-
+#Retrives and prepares the data to rain the model
 with open(file_name) as file:
     raw: dict[str, dict[str, t.Any]] = json.load(file)["data"]
 
@@ -58,13 +58,20 @@ for name, stats in raw.items():
 data = pd.json_normalize(rows).fillna(0.0)
 data = data.set_index(data["name"].drop(columns=["name"]))
 
+#Stores name for WebApp.py
+pickle.dump(data["name"].to_list(),open("names_list.pkl","wb"))
+
 le = LabelEncoder()
 data["name"] = le.fit_transform(data["name"])
 data["tera_encoded"] = le.fit_transform(data["tera"])
 
 
+#Uses the data to train the model
 X = data.drop(["name","tera","tera_encoded"],axis=1)
 y = data["tera_encoded"]
+
+#Stores data for use in WebApp.py
+pickle.dump(X, open('data.pkl', 'wb'))
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
@@ -72,9 +79,7 @@ classifer = RandomForestClassifier(n_estimators=NUM_ESTIMATORS,max_depth=6 ,rand
 classifer.fit(X_train, y_train)
 y_pred = classifer.predict(X_test)
 
-print(X_test)
-print(le.inverse_transform(y_pred))
-
+#Saves the tree of the model
 tree = classifer.estimators_[NUM_ESTIMATORS - 1]
 export_graphviz(tree, out_file=dot_file,
                 class_names=data["tera"],
@@ -85,6 +90,8 @@ with open(dot_file) as f:
 
 graph = graphviz.Source(dot_graph)
 graph.render("randm_forest_tree")
-graph
 
+
+#Stores model and Tera encoder for WebApp.py
+pickle.dump(le, open('encoder.pkl', 'wb'))
 pickle.dump(classifer, open('my_model.pkl', 'wb'))

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Pokemon Tera Type Picker</title>
+</head>
+<body>
+    <h2>Pick A pokemon</h2>
+    <label for="pokemon-choice">Pick a pokemon and we'll suggest a Tera Type.</label>
+    <input list="pokemon-names" id="pokemon-choice" name="pokemon-choice">
+    <datalist id="pokemon-names">
+        {% for names in pokemon_names  %}
+            <option value={{ pokemon_names[loop.index-1]|e }}></option>
+        {% endfor %}
+    </datalist>
+
+
+</body>
+</html>
